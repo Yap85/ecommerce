@@ -1,0 +1,160 @@
+<style>
+    .back-button 
+    {
+        background-color: #025aa5;
+        color: white;
+        padding: 8px 20px;
+        text-decoration: none;
+        border-radius: 6px;
+        display: inline-block;
+    }
+</style>
+
+<x-app-layout>
+    
+    
+    <form method="POST" id="updateProductForm" style="padding:20px;">
+
+        <div style="display:flex; width:100%; justify-content:space-between; padding: 10px;">
+            <h2>Edit Product</h2>
+            <a href="javascript:history.back()" class="back-button">Back</a>
+        </div>
+
+        <h4>Name:</h4>
+        <div class="row" style="">
+            <div style="">
+                <input id="new_name" type="text" name="name" class="new-name" placeholder="Name">
+            </div>
+        </div>
+
+        <br>
+
+        <h4>Price (RM):</h4>
+        <div class="row" style="">
+            <div style="">
+                <input id="new_price" type="number" name="price" class="new-price" placeholder="99.90">
+            </div>
+        </div>  
+
+        <br>
+
+        <h4>Detail:</h4>
+        <div class="row" style="">
+            <div style="">
+                <textarea id="new_detail" name="detail" class="new-detail" rows="4" cols="50"></textarea>
+            </div>
+        </div>  
+
+        <br>
+
+        <h4>Publish:</h4>
+        <div class="row" style="">
+            <div>
+                <input type="radio" id="yes" name="publish" value="1">
+                <label for="yes">Yes</label>
+            </div>
+            <div>
+                <input type="radio" id="no" name="publish" value="2">
+                <label for="no">No</label>
+            </div>
+        </div>  
+
+        <div class="row" style="justify-content: center;">
+            <div style="text-align: center; background-color: #0275d8; color:white; width: 100px; padding:7px;">
+                <button type="submit" class="edit-submit">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</x-app-layout>
+
+<script type="text/javascript">
+
+    editForm();
+
+    $('#updateProductForm').submit(function(e)
+    {
+        e.preventDefault();
+        submitUpdateProductForm ();
+    });
+
+    function editForm()
+    {
+        var data = {};
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const prdId = urlParams.get('id');
+
+        data['prd_id'] = prdId;
+
+        $.ajax({
+            type: "GET",
+            url: "/ajax/editProductDetail",
+            data: data,
+            success: function(data) 
+            {
+                if(data.length > 0)
+                {
+                    var prdName = data[0]['prd_name'];
+                    var prdPrice = data[0]['price'];
+                    var prdDetail = data[0]['detail'];
+                    var prdPublish = data[0]['publish'];
+
+                    document.getElementById('new_name').value = prdName;
+                    document.getElementById('new_price').value = prdPrice;
+                    document.getElementById('new_detail').innerHTML = prdDetail;
+
+                    if(prdPublish == 1)
+                    {
+                        var x = document.getElementById("yes");
+                        x.checked = true;
+                    }
+                    else
+                    {
+                        var y = document.getElementById("no");
+                        y.checked = true;
+                    }
+
+                }
+                else
+                {
+                    alert(data.msg);
+                }
+            }
+        });
+
+    }
+
+    function submitUpdateProductForm()
+    {
+        var data = {};
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const prdId = urlParams.get('id');
+
+        data['id'] = prdId;
+        data['name'] = $('#new_name').val();
+        data['price'] = $('#new_price').val();
+        data['detail'] = $('#new_detail').val();
+        data['publish'] = document.querySelector('input[name="publish"]:checked').value;
+
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/submitUpdateProductForm',
+            data: data, 
+            success: function(data)
+            {
+                if(data.status == 1)
+                {
+                    alert("Success!");
+                }
+                else
+                {
+                    alert(data.error);
+                }
+            }
+        });
+    }
+
+</script>
